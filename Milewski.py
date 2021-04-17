@@ -1,3 +1,4 @@
+from line import line
 import sys
 import numpy
 import math
@@ -9,7 +10,7 @@ from PyQt5.QtWidgets import *
 
 class Widget(QWidget):
     def __init__(self):
-        self.lines = read_file("cube2.dat")
+        self.lines = read_file("cube1.dat")
         self.lens = 300
         self.screen_size = (800, 800)
         super().__init__()
@@ -18,6 +19,7 @@ class Widget(QWidget):
         painter = QPainter(self)
         colors = [Qt.red, Qt.blue, Qt.green, Qt.yellow]
         painter.setPen(QPen(colors[1], 2))
+        # print(self.lines)
 
         for b in self.lines:
             for l in b:
@@ -25,12 +27,15 @@ class Widget(QWidget):
                 for p in l:
                     x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
                     y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
-                    viewedPoint = QPoint(int(x), int(y))
-                    if(p[1] > self.lens):
-                        viewedLine.append(viewedPoint)
+                    viewedPoint = (x, y)
+                    # if(p[1] > self.lens):
+                    viewedLine.append(viewedPoint)
 
                 if(len(viewedLine) > 1):
-                    painter.drawPolyline(QPolygon(viewedLine))
+                    line(viewedLine, l)
+
+                    painter.drawPolyline(QPolygon([QPoint(int(viewedLine[0][0]), int(
+                        viewedLine[0][1])), QPoint(int(viewedLine[1][0]), int(viewedLine[1][1]))]))
 
     def transformAllBy(self, x, y, z):
         for b in range(len(self.lines)):
