@@ -3,32 +3,35 @@ from line import line
 import sys
 import numpy
 import math
+import random
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from typing import Tuple
 from PyQt5.QtWidgets import *
+SCREEN_SIZE = 800
+colors = [Qt.black, Qt.red, Qt.blue, Qt.green, Qt.yellow, Qt.magenta, Qt.gray]
+walls = []
 
 
 class Widget(QWidget):
     def __init__(self):
         self.lines = read_file("cube1.dat")
         self.lens = 300
-        self.screen_size = (800, 800)
+        self.screen_size = (SCREEN_SIZE, SCREEN_SIZE)
         super().__init__()
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        colors = [Qt.red, Qt.blue, Qt.green, Qt.yellow, Qt.magenta, Qt.gray]
+
         painter.setPen(QPen(colors[1], 2))
         # print(self.lines)
 
         allLines = []
         allWalls = []
+        background = wall(colors[0])
 
         for b in self.lines:
-            walls = []
-            for x in range(6):
-                walls.append(wall(colors[x]))
+            
             counter = 0
             for l in b:
                 viewedLine = []
@@ -41,7 +44,8 @@ class Widget(QWidget):
                     viewedLine.append(viewedPoint)
 
                 # if(len(viewedLine) > 1):  to jest usuwanie krawedzie po za ekranem
-                objL = line(viewedLine, l)
+                objL = line(viewedLine)
+                objL.setCords3D(l)
                 if counter in [0, 1, 2, 3]:
                     objL.attachWall(walls[0])
                     walls[0].attachLine(objL)
@@ -64,8 +68,7 @@ class Widget(QWidget):
                 allLines.append(objL)
 
                 # stare rysowanie
-                painter.drawPolyline(QPolygon([QPoint(int(viewedLine[0][0]), int(
-                    viewedLine[0][1])), QPoint(int(viewedLine[1][0]), int(viewedLine[1][1]))]))
+                # painter.drawPolyline(QPolygon([QPoint(int(viewedLine[0][0]), int(viewedLine[0][1])), QPoint(int(viewedLine[1][0]), int(viewedLine[1][1]))]))
 
                 counter += 1
 
@@ -73,8 +76,66 @@ class Widget(QWidget):
                 w.createEquation()
                 allWalls.append(w)
 
-        print(allWalls)
-        print(allLines)
+        # print(allWalls)
+        # print(allLines)
+
+        
+        for i in range(SCREEN_SIZE):
+            intersectionOrder = []
+            scanLine = line(((SCREEN_SIZE*-10, i),(SCREEN_SIZE*10, i)) )
+            for edge in allLines:
+                if scanLine.intersects(edge):
+                    try:
+                        intersectionOrder.append(scanLine.line_intersection(edge))
+                    except:
+                        continue
+            sections = []
+
+            # if( i >= 248 and i <= 260):
+            #     print(i)
+            #     print(intersectionOrder[0][0])
+            #     intersectionOrder.sort()
+            #     print(intersectionOrder)
+            lastX = SCREEN_SIZE*-10
+            sectionCenterX = SCREEN_SIZE*-10
+            for point in intersectionOrder: #tu przypisujemy odcinkom kolory bo w sumie to tylko tyle nas interesuje
+                point[3].wall.changeInOut()
+                if lastX != SCREEN_SIZE*-10:
+                    sectionCenterX = lastX + (math.fabs(point[0]) - math.fabs(lastX))/2
+                    isBackground = True
+                    closestPlane = background
+                    for plane in allWalls:
+                        isBackground = False
+                        closestZ = 99999.0
+                        if plane.inOut:
+                            planeZ = plane.getZ(sectionCenterX, i)
+                            if planeZ < closestZ:
+                                closestPlane = plane
+                    if isBackground:
+                        sections.append(colors[0])
+                    else:
+                        sections.append(closestPlane.color)
+                else:
+                    sections.append(colors[0])
+                lastX = point[0]
+            lastX = SCREEN_SIZE*-10
+            if len(sections) != 0:
+                for section in range(len(sections)):
+                    painter.setPen(QPen(sections[section], 1))
+                    painter.drawPolyline(QPolygon([lastX, i, intersectionOrder[section][0], i]))
+                    lastX = intersectionOrder[section][0]
+                if lastX < SCREEN_SIZE:
+                    painter.setPen(QPen(background.color, 1))
+                    painter.drawPolyline(QPolygon([lastX, i, SCREEN_SIZE, i]))
+            else:
+                painter.setPen(QPen(background.color, 1))
+                painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
+        
+            # painter.drawPolyline(QPolygon([QPoint(int(scanLine.cords2D[0][0]),int(scanLine.cords2D[0][1])), 
+            # QPoint(int(scanLine.cords2D[1][0]),int(scanLine.cords2D[1][1]))]))
+
+        # painter.setPen(QPen(colors[1], 2))
+        # painter.drawPolyline(QPolygon([200, 599, 800, 599]))
 
         # Tutaj powinien być kontynulowany alogrytm
         # Powinny byc wszystkie linie wypelnione danymi
@@ -188,6 +249,8 @@ def read_file(file_name: str):
                 endPoint.append(1)
                 loaded_edges.append([beginPoint, endPoint])
             blocks.append(loaded_edges)
+        for x in range(6):
+                walls.append(wall(colors[random.randint(1,len(colors) - 1)]))    
         return blocks
 
 
