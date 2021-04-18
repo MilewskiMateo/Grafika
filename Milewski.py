@@ -87,7 +87,7 @@ class Widget(QWidget):
                         except:
                             continue
                 sections = []
-
+                intersectionOrder.sort()
                 # if( i >= 248 and i <= 260):
                 #     print(i)
                 #     print(intersectionOrder[0][0])
