@@ -46,6 +46,7 @@ class Widget(QWidget):
 
                 # if(len(viewedLine) > 1):  to jest usuwanie krawedzie po za ekranem
                 objL = line(viewedLine)
+                # print(viewedLine)
                 objL.setCords3D(l)
                 if counter in [0, 1, 2, 3]:
                     objL.attachWall(walls[0])
@@ -88,30 +89,28 @@ class Widget(QWidget):
                             continue
                 sections = []
                 intersectionOrder.sort()
-                # if( i >= 248 and i <= 260):
+                # if( i == 250 ):
                 #     print(i)
-                #     print(intersectionOrder[0][0])
                 #     intersectionOrder.sort()
+                #     painter.setPen(QPen(colors[1], 1))
+                #     painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
                 #     print(intersectionOrder)
+            
                 lastX = SCREEN_SIZE*-10
                 sectionCenterX = SCREEN_SIZE*-10
-                for point in intersectionOrder: #tu przypisujemy odcinkom kolory bo w sumie to tylko tyle nas interesuje
+                for point in intersectionOrder: 
                     point[3].wall.changeInOut()
                     if lastX != SCREEN_SIZE*-10:
                         sectionCenterX = lastX + math.fabs(math.fabs(point[0]) - math.fabs(lastX))/2
-                        isBackground = True
                         closestPlane = background
+                        closestZ = 99999.0
                         for plane in allWalls:
-                            isBackground = False
-                            closestZ = 99999.0
                             if plane.inOut:
                                 planeZ = plane.getZ(sectionCenterX, i)
+                                print(planeZ)
                                 if planeZ < closestZ:
                                     closestPlane = plane
-                        if isBackground:
-                            sections.append(colors[0])
-                        else:
-                            sections.append(closestPlane.color)
+                        sections.append(closestPlane.color)
                     else:
                         sections.append(colors[0])
                     lastX = point[0]
