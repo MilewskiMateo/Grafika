@@ -15,7 +15,8 @@ walls = []
 
 class Widget(QWidget):
     def __init__(self):
-        self.lines = read_file("cube1.dat")
+        self.blocks = read_file("cube1.dat")
+        self.walls = createWalls(self.blocks)
         self.lens = 300
         self.screen_size = (SCREEN_SIZE, SCREEN_SIZE)
         super().__init__()
@@ -23,14 +24,14 @@ class Widget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
 
-        painter.setPen(QPen(colors[1], 2))
-        # print(self.lines)
+        # painter.setPen(QPen(colors[1], 2))
+        # print(self.blocks)
 
         allLines = []
         allWalls = []
         background = wall(colors[0])
 
-        for b in self.lines:
+        for b in self.blocks:
             
             counter = 0
             for l in b:
@@ -76,60 +77,56 @@ class Widget(QWidget):
                 w.createEquation()
                 allWalls.append(w)
 
-        # print(allWalls)
-        # print(allLines)
+            for i in range(SCREEN_SIZE):
+                intersectionOrder = []
+                scanLine = line(((SCREEN_SIZE*-10, i),(SCREEN_SIZE*10, i)) )
+                for edge in allLines:
+                    if scanLine.intersects(edge):
+                        try:
+                            intersectionOrder.append(scanLine.line_intersection(edge))
+                        except:
+                            continue
+                sections = []
 
-        
-        for i in range(SCREEN_SIZE):
-            intersectionOrder = []
-            scanLine = line(((SCREEN_SIZE*-10, i),(SCREEN_SIZE*10, i)) )
-            for edge in allLines:
-                if scanLine.intersects(edge):
-                    try:
-                        intersectionOrder.append(scanLine.line_intersection(edge))
-                    except:
-                        continue
-            sections = []
-
-            # if( i >= 248 and i <= 260):
-            #     print(i)
-            #     print(intersectionOrder[0][0])
-            #     intersectionOrder.sort()
-            #     print(intersectionOrder)
-            lastX = SCREEN_SIZE*-10
-            sectionCenterX = SCREEN_SIZE*-10
-            for point in intersectionOrder: #tu przypisujemy odcinkom kolory bo w sumie to tylko tyle nas interesuje
-                point[3].wall.changeInOut()
-                if lastX != SCREEN_SIZE*-10:
-                    sectionCenterX = lastX + (math.fabs(point[0]) - math.fabs(lastX))/2
-                    isBackground = True
-                    closestPlane = background
-                    for plane in allWalls:
-                        isBackground = False
-                        closestZ = 99999.0
-                        if plane.inOut:
-                            planeZ = plane.getZ(sectionCenterX, i)
-                            if planeZ < closestZ:
-                                closestPlane = plane
-                    if isBackground:
-                        sections.append(colors[0])
+                # if( i >= 248 and i <= 260):
+                #     print(i)
+                #     print(intersectionOrder[0][0])
+                #     intersectionOrder.sort()
+                #     print(intersectionOrder)
+                lastX = SCREEN_SIZE*-10
+                sectionCenterX = SCREEN_SIZE*-10
+                for point in intersectionOrder: #tu przypisujemy odcinkom kolory bo w sumie to tylko tyle nas interesuje
+                    point[3].wall.changeInOut()
+                    if lastX != SCREEN_SIZE*-10:
+                        sectionCenterX = lastX + math.fabs(math.fabs(point[0]) - math.fabs(lastX))/2
+                        isBackground = True
+                        closestPlane = background
+                        for plane in allWalls:
+                            isBackground = False
+                            closestZ = 99999.0
+                            if plane.inOut:
+                                planeZ = plane.getZ(sectionCenterX, i)
+                                if planeZ < closestZ:
+                                    closestPlane = plane
+                        if isBackground:
+                            sections.append(colors[0])
+                        else:
+                            sections.append(closestPlane.color)
                     else:
-                        sections.append(closestPlane.color)
+                        sections.append(colors[0])
+                    lastX = point[0]
+                lastX = SCREEN_SIZE*-10
+                if len(sections) != 0:
+                    for section in range(len(sections)):
+                        painter.setPen(QPen(sections[section], 1))
+                        painter.drawPolyline(QPolygon([lastX, i, intersectionOrder[section][0], i]))
+                        lastX = intersectionOrder[section][0]
+                    if lastX < SCREEN_SIZE:
+                        painter.setPen(QPen(background.color, 1))
+                        painter.drawPolyline(QPolygon([lastX, i, SCREEN_SIZE, i]))
                 else:
-                    sections.append(colors[0])
-                lastX = point[0]
-            lastX = SCREEN_SIZE*-10
-            if len(sections) != 0:
-                for section in range(len(sections)):
-                    painter.setPen(QPen(sections[section], 1))
-                    painter.drawPolyline(QPolygon([lastX, i, intersectionOrder[section][0], i]))
-                    lastX = intersectionOrder[section][0]
-                if lastX < SCREEN_SIZE:
                     painter.setPen(QPen(background.color, 1))
-                    painter.drawPolyline(QPolygon([lastX, i, SCREEN_SIZE, i]))
-            else:
-                painter.setPen(QPen(background.color, 1))
-                painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
+                    painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
         
             # painter.drawPolyline(QPolygon([QPoint(int(scanLine.cords2D[0][0]),int(scanLine.cords2D[0][1])), 
             # QPoint(int(scanLine.cords2D[1][0]),int(scanLine.cords2D[1][1]))]))
@@ -151,51 +148,51 @@ class Widget(QWidget):
         # potestowac na jakims osobnym pliku by ogarnac
 
     def transformAllBy(self, x, y, z):
-        for b in range(len(self.lines)):
-            for p in range(len(self.lines[b])):
-                a = numpy.array(self.lines[b][p]).T
+        for b in range(len(self.blocks)):
+            for p in range(len(self.blocks[b])):
+                a = numpy.array(self.blocks[b][p]).T
                 m = numpy.array([
                     [1, 0, 0, x],
                     [0, 1, 0, y],
                     [0, 0, 1, z],
                     [0, 0, 0, 1]])
-                self.lines[b][p] = numpy.matmul(m, a).T
+                self.blocks[b][p] = numpy.matmul(m, a).T
         self.update()
 
     def rotateAllByY(self, kwant):
-        for b in range(len(self.lines)):
-            for p in range(len(self.lines[b])):
-                a = numpy.array(self.lines[b][p]).T
+        for b in range(len(self.blocks)):
+            for p in range(len(self.blocks[b])):
+                a = numpy.array(self.blocks[b][p]).T
                 m = numpy.array([
                     [math.cos(kwant), 0, math.sin(kwant), 0],
                     [0, 1, 0, 0],
                     [-math.sin(kwant), 0, math.cos(kwant), 0],
                     [0, 0, 0, 1]])
-                self.lines[b][p] = numpy.matmul(m, a).T
+                self.blocks[b][p] = numpy.matmul(m, a).T
         self.update()
 
     def rotateAllByX(self, kwant):
-        for b in range(len(self.lines)):
-            for p in range(len(self.lines[b])):
-                a = numpy.array(self.lines[b][p]).T
+        for b in range(len(self.blocks)):
+            for p in range(len(self.blocks[b])):
+                a = numpy.array(self.blocks[b][p]).T
                 m = numpy.array([
                     [1, 0, 0, 0],
                     [0, math.cos(kwant), -math.sin(kwant), 0],
                     [0, math.sin(kwant), math.cos(kwant), 0],
                     [0, 0, 0, 1]])
-                self.lines[b][p] = numpy.matmul(m, a).T
+                self.blocks[b][p] = numpy.matmul(m, a).T
         self.update()
 
     def rotateAllByZ(self, kwant):
-        for b in range(len(self.lines)):
-            for p in range(len(self.lines[b])):
-                a = numpy.array(self.lines[b][p]).T
+        for b in range(len(self.blocks)):
+            for p in range(len(self.blocks[b])):
+                a = numpy.array(self.blocks[b][p]).T
                 m = numpy.array([
                     [math.cos(kwant), -math.sin(kwant), 0, 0],
                     [math.sin(kwant), math.cos(kwant), 0, 0],
                     [0, 0, 1, 0],
                     [0, 0, 0, 1]])
-                self.lines[b][p] = numpy.matmul(m, a).T
+                self.blocks[b][p] = numpy.matmul(m, a).T
         self.update()
 
     def keyPressEvent(self, event):
@@ -249,9 +246,19 @@ def read_file(file_name: str):
                 endPoint.append(1)
                 loaded_edges.append([beginPoint, endPoint])
             blocks.append(loaded_edges)
-        for x in range(6):
-                walls.append(wall(colors[random.randint(1,len(colors) - 1)]))    
         return blocks
+
+def createWalls(blocks):
+    for x in range(6):
+        walls.append(wall(colors[x]))
+        # walls.append(wall(colors[random.randint(1,len(colors) - 1)])) 
+    # for b in blocks:
+    #     counter = 0
+    #     for edge in b:
+    #         if counter in [0, 1, 2, 3]:
+    #             wall[0].
+    #         print(edge)
+    
 
 
 if __name__ == '__main__':
