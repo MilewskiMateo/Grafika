@@ -1,3 +1,4 @@
+from wall import wall
 from line import line
 import sys
 import numpy
@@ -17,25 +18,76 @@ class Widget(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        colors = [Qt.red, Qt.blue, Qt.green, Qt.yellow]
+        colors = [Qt.red, Qt.blue, Qt.green, Qt.yellow, Qt.magenta, Qt.gray]
         painter.setPen(QPen(colors[1], 2))
         # print(self.lines)
 
+        allLines = []
+        allWalls = []
+
         for b in self.lines:
+            walls = []
+            for x in range(6):
+                walls.append(wall(colors[x]))
+            counter = 0
             for l in b:
                 viewedLine = []
                 for p in l:
+                    # tutaj sa rzutowane punkty
                     x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
                     y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
                     viewedPoint = (x, y)
-                    # if(p[1] > self.lens):
+                    # if(p[1] > self.lens): // to jest usuwanie krawedzie po za ekranem
                     viewedLine.append(viewedPoint)
 
-                if(len(viewedLine) > 1):
-                    line(viewedLine, l)
+                # if(len(viewedLine) > 1):  to jest usuwanie krawedzie po za ekranem
+                objL = line(viewedLine, l)
+                if counter in [0, 1, 2, 3]:
+                    objL.attachWall(walls[0])
+                    walls[0].attachLine(objL)
+                if counter in [1, 4, 9, 6]:
+                    objL.attachWall(walls[1])
+                    walls[1].attachLine(objL)
+                if counter in [9, 8, 11, 10]:
+                    objL.attachWall(walls[2])
+                    walls[2].attachLine(objL)
+                if counter in [3, 7, 11, 5]:
+                    objL.attachWall(walls[3])
+                    walls[3].attachLine(objL)
+                if counter in [6, 2, 10, 7]:
+                    objL.attachWall(walls[4])
+                    walls[4].attachLine(objL)
+                if counter in [0, 4, 8, 5]:
+                    objL.attachWall(walls[5])
+                    walls[5].attachLine(objL)
 
-                    painter.drawPolyline(QPolygon([QPoint(int(viewedLine[0][0]), int(
-                        viewedLine[0][1])), QPoint(int(viewedLine[1][0]), int(viewedLine[1][1]))]))
+                allLines.append(objL)
+
+                # stare rysowanie
+                painter.drawPolyline(QPolygon([QPoint(int(viewedLine[0][0]), int(
+                    viewedLine[0][1])), QPoint(int(viewedLine[1][0]), int(viewedLine[1][1]))]))
+
+                counter += 1
+
+            for w in walls:
+                w.createEquation()
+                allWalls.append(w)
+
+        print(allWalls)
+        print(allLines)
+
+        # Tutaj powinien być kontynulowany alogrytm
+        # Powinny byc wszystkie linie wypelnione danymi
+        # i wszystkie sciany tez
+
+        # w przypadku obiektu ściany jest metoda która zwraca Z z wartosci X,Y
+
+        # Natomiast w przypadku obiektu lini tam jest troche specyficznie bo sa dwie metody
+        # jedna mowi czy dwa odcinki w ogole sie przecinaja
+        # druga zwraca kordynaty miejsca przeciecia PROSTYCH stowrzynych na podstawie odcinkow
+        # lepiej to by było jakos połaczyć w jedną metodę ale tam jest niezła kaszana jeżeli
+        # chodzi o sytuacje współliniowości i równoległóści mozesz sobie
+        # potestowac na jakims osobnym pliku by ogarnac
 
     def transformAllBy(self, x, y, z):
         for b in range(len(self.lines)):
