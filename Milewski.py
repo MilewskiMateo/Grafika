@@ -137,6 +137,9 @@ class Widget(QWidget):
                     painter.setPen(QPen(background.color, 1))
                     painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
 
+            for w in allWalls:
+                w.inOut = False
+
             # painter.drawPolyline(QPolygon([QPoint(int(scanLine.cords2D[0][0]),int(scanLine.cords2D[0][1])),
             # QPoint(int(scanLine.cords2D[1][0]),int(scanLine.cords2D[1][1]))]))
 
