@@ -40,10 +40,10 @@ class Widget(QWidget):
                 viewedLine = []
                 for p in l:
                     # tutaj sa rzutowane punkty
-                    x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
-                    y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
-                    # x = (self.lens / p[1]) * p[0]
-                    # y = (self.lens / p[1]) * p[2]
+                    # x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
+                    # y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
+                    x = (self.lens / p[1]) * p[0]
+                    y = (self.lens / p[1]) * p[2]
                     viewedPoint = (x, y)
                     # if(p[1] > self.lens): // to jest usuwanie krawedzie po za ekranem
                     viewedLine.append(viewedPoint)
@@ -84,7 +84,7 @@ class Widget(QWidget):
 
             for i in range(SCREEN_SIZE):
 
-                if not (i == 50):
+                if not (i == 100):
 
                     intersectionOrder = []
                     scanLine = line(((0, i), (SCREEN_SIZE, i)))
@@ -107,6 +107,10 @@ class Widget(QWidget):
 
                     lastX = 0
                     sectionCenterX = 0
+
+                    if (i == 101):
+                        print("nic")
+
                     for point in intersectionOrder:
 
                         if lastX != 0:
@@ -114,13 +118,14 @@ class Widget(QWidget):
                                 math.fabs(
                                     math.fabs(point[0]) - math.fabs(lastX))/2
                             closestPlane = background
-                            closestZ = 9999999.0
+                            closestZ = -999999.0
                             for plane in allWalls:
                                 if plane.inOut:
-                                    planeZ = plane.getZ(sectionCenterX, i)
+                                    planeZ = plane.getZ(sectionCenterX, i, 300)
                                     # print(planeZ)
-                                    if planeZ < closestZ:
+                                    if planeZ > closestZ:
                                         closestPlane = plane
+                                        closestZ = planeZ
                             sections.append(closestPlane.color)
                         else:
                             sections.append(colors[0])
