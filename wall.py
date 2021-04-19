@@ -4,8 +4,9 @@ import numpy as np
 
 
 class wall:
-    def __init__(self, color) -> None:
+    def __init__(self, color, colorSTR) -> None:
         self.color = color
+        self.colorSTR = colorSTR
         self.inOut = False
         self.lines = []
 
