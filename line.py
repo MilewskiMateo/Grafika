@@ -8,12 +8,13 @@ class line:
     def __init__(self, cords2D) -> None:
         self.cords2D = cords2D
         self.in_out = False
+        self.walls = []
 
     def setCords3D(self, cords3D) -> None:
         self.cords3D = cords3D
 
     def attachWall(self, wall) -> None:
-        self.wall = wall
+        self.walls.append(wall)
 
     def intersects(self, s0line) -> bool:
         s1 = self.cords2D
@@ -44,7 +45,8 @@ class line:
         x = det(d, xdiff) / div
         y = det(d, ydiff) / div
 
-        return [x, y, random.random(), edge] #musimy dodać losową liczbę, ponieważ jest to konieczne przy sortowaniu, jeżeli pojawia się wierzchołek
+        # musimy dodać losową liczbę, ponieważ jest to konieczne przy sortowaniu, jeżeli pojawia się wierzchołek
+        return [x, y, random.random(), edge]
 
     def get_cords2D(self):
         return self.cords2D

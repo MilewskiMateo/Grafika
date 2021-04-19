@@ -31,15 +31,19 @@ class Widget(QWidget):
 
         for b in self.blocks:
             walls = []
-            for x in range(1,7):
-                walls.append(wall(colors[x]))            
+
+            for x in range(1, 7):
+                walls.append(wall(colors[x]))
             counter = 0
+
             for l in b:
                 viewedLine = []
                 for p in l:
                     # tutaj sa rzutowane punkty
-                    x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
-                    y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
+                    # x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
+                    # y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
+                    x = (self.lens / p[1]) * p[0]
+                    y = (self.lens / p[1]) * p[2]
                     viewedPoint = (x, y)
                     # if(p[1] > self.lens): // to jest usuwanie krawedzie po za ekranem
                     viewedLine.append(viewedPoint)
@@ -80,37 +84,39 @@ class Widget(QWidget):
 
             for i in range(SCREEN_SIZE):
                 intersectionOrder = []
-                scanLine = line(((0, i),(SCREEN_SIZE, i)) )
-                # scanLine = line(((SCREEN_SIZE*-10, i),(SCREEN_SIZE*10, i)) )
+
+                scanLine = line(((0, i), (SCREEN_SIZE, i)))
                 for edge in allLines:
                     if scanLine.intersects(edge):
                         try:
-                            intersectionOrder.append(scanLine.line_intersection(edge))
+                            intersectionOrder.append(
+                                scanLine.line_intersection(edge))
                         except:
                             continue
                 sections = []
                 intersectionOrder.sort()
-                # if( i == 270 ):
-                #     print(i)
-                #     intersectionOrder.sort()
-                #     painter.setPen(QPen(colors[1], 1))
-                #     painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
-                #     print(intersectionOrder)
-            
+
+                if(i == 70):
+                    painter.setPen(QPen(colors[1], 1))
+                    painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
+                    for e in intersectionOrder:
+                        print(e)
+                        print(e[3])
+
                 lastX = 0
                 sectionCenterX = 0
-                # lastX = SCREEN_SIZE*-10
-                # sectionCenterX = SCREEN_SIZE*-10
-                for point in intersectionOrder: 
-                    point[3].wall.changeInOut()
-                    # if lastX != SCREEN_SIZE*-10:
+                for point in intersectionOrder:
+                    point[3].walls[0].changeInOut()
+                    point[3].walls[1].changeInOut()
                     if lastX != 0:
-                        sectionCenterX = lastX + math.fabs(math.fabs(point[0]) - math.fabs(lastX))/2
+                        sectionCenterX = lastX + \
+                            math.fabs(math.fabs(point[0]) - math.fabs(lastX))/2
                         closestPlane = background
-                        closestZ = 99999.0
+                        closestZ = 9999999.0
                         for plane in allWalls:
                             if plane.inOut:
                                 planeZ = plane.getZ(sectionCenterX, i)
+                                # print(planeZ)
                                 if planeZ < closestZ:
                                     if planeZ > -999999.0:
                                         closestPlane = plane
@@ -118,24 +124,29 @@ class Widget(QWidget):
                     else:
                         sections.append(colors[0])
                     lastX = point[0]
-                # lastX = SCREEN_SIZE*-10
                 lastX = 0
+
                 if len(sections) != 0:
                     for section in range(len(sections)):
                         # if(lastX < 0 and intersectionOrder[section][0] > 0):
                         #     lastX = 0
                         # if(lastX < SCREEN_SIZE and )
                         painter.setPen(QPen(sections[section], 1))
-                        painter.drawPolyline(QPolygon([lastX, i, intersectionOrder[section][0], i]))
+                        painter.drawPolyline(
+                            QPolygon([lastX, i, intersectionOrder[section][0], i]))
                         lastX = intersectionOrder[section][0]
                     if lastX < SCREEN_SIZE:
                         painter.setPen(QPen(background.color, 1))
-                        painter.drawPolyline(QPolygon([lastX, i, SCREEN_SIZE, i]))
+                        painter.drawPolyline(
+                            QPolygon([lastX, i, SCREEN_SIZE, i]))
                 else:
                     painter.setPen(QPen(background.color, 1))
                     painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
-        
-            # painter.drawPolyline(QPolygon([QPoint(int(scanLine.cords2D[0][0]),int(scanLine.cords2D[0][1])), 
+
+            for w in allWalls:
+                w.inOut = False
+
+            # painter.drawPolyline(QPolygon([QPoint(int(scanLine.cords2D[0][0]),int(scanLine.cords2D[0][1])),
             # QPoint(int(scanLine.cords2D[1][0]),int(scanLine.cords2D[1][1]))]))
 
         # painter.setPen(QPen(colors[1], 2))
@@ -255,6 +266,17 @@ def read_file(file_name: str):
             blocks.append(loaded_edges)
         return blocks
 
+
+def createWalls():
+    for x in range(1, 7):
+        walls.append(wall(colors[x]))
+        # walls.append(wall(colors[random.randint(1,len(colors) - 1)]))
+    # for b in blocks:
+    #     counter = 0
+    #     for edge in b:
+    #         if counter in [0, 1, 2, 3]:
+    #             wall[0].
+    #         print(edge)
 
 
 if __name__ == '__main__':
