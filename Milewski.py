@@ -15,7 +15,7 @@ colorsSTR = ["black", "red", "blue", "green", "yellow", "magenta", "gray"]
 
 class Widget(QWidget):
     def __init__(self):
-        self.blocks = read_file("cube1.dat")
+        self.blocks = read_file("cube4.dat")
         self.lens = 300
         self.screen_size = (SCREEN_SIZE, SCREEN_SIZE)
         super().__init__()
@@ -40,10 +40,10 @@ class Widget(QWidget):
                 viewedLine = []
                 for p in l:
                     # tutaj sa rzutowane punkty
-                    # x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
-                    # y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
-                    x = (self.lens / p[1]) * p[0]
-                    y = (self.lens / p[1]) * p[2]
+                    x = (self.lens / p[1]) * p[0] + self.screen_size[0] / 2
+                    y = self.screen_size[1] / 2 - (self.lens / p[1]) * p[2]
+                    # x = (self.lens / p[1]) * p[0]
+                    # y = (self.lens / p[1]) * p[2]
                     viewedPoint = (x, y)
                     # if(p[1] > self.lens): // to jest usuwanie krawedzie po za ekranem
                     viewedLine.append(viewedPoint)

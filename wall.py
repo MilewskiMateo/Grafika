@@ -37,7 +37,7 @@ class wall:
         self.d = d
 
     def getZ(self, x, y):
-        return (-self.d - self.a*x - self.b*y)/self.c
+        return (self.d - self.a*x - self.b*y)/self.c
 
     def changeInOut(self):
         if self.inOut == True:
