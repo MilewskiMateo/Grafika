@@ -266,6 +266,8 @@ def read_file(file_name: str):
             blocks.append(loaded_edges)
         return blocks
 
+<<<<<<< HEAD
+=======
 
 def createWalls():
     for x in range(1, 7):
@@ -277,6 +279,7 @@ def createWalls():
     #         if counter in [0, 1, 2, 3]:
     #             wall[0].
     #         print(edge)
+>>>>>>> mateo
 
 
 if __name__ == '__main__':
