@@ -10,6 +10,7 @@ from typing import Tuple
 from PyQt5.QtWidgets import *
 SCREEN_SIZE = 800
 colors = [Qt.black, Qt.red, Qt.blue, Qt.green, Qt.yellow, Qt.magenta, Qt.gray]
+colorsSTR = ["black", "red", "blue", "green", "yellow", "magenta", "gray"]
 
 
 class Widget(QWidget):
@@ -27,13 +28,13 @@ class Widget(QWidget):
 
         allLines = []
         allWalls = []
-        background = wall(colors[0])
+        background = wall(colors[0], colorsSTR[0])
 
         for b in self.blocks:
             walls = []
 
             for x in range(1, 7):
-                walls.append(wall(colors[x]))
+                walls.append(wall(colors[x], colorsSTR[x]))
             counter = 0
 
             for l in b:
@@ -83,6 +84,7 @@ class Widget(QWidget):
                 allWalls.append(w)
 
             for i in range(SCREEN_SIZE):
+<<<<<<< HEAD
                 intersectionOrder = []
 
                 scanLine = line(((0, i), (SCREEN_SIZE, i)))
@@ -136,12 +138,67 @@ class Widget(QWidget):
                             QPolygon([lastX, i, intersectionOrder[section][0], i]))
                         lastX = intersectionOrder[section][0]
                     if lastX < SCREEN_SIZE:
+=======
+
+                if not (i == 50):
+
+                    intersectionOrder = []
+                    scanLine = line(((0, i), (SCREEN_SIZE, i)))
+                    for edge in allLines:
+                        if scanLine.intersects(edge):
+                            try:
+                                intersectionOrder.append(
+                                    scanLine.line_intersection(edge))
+                            except:
+                                continue
+                    sections = []
+                    intersectionOrder.sort()
+
+                    if(i == 70):
+                        painter.setPen(QPen(colors[1], 1))
+                        painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
+                        for e in intersectionOrder:
+                            print(e)
+                            print(e[3])
+
+                    lastX = 0
+                    sectionCenterX = 0
+                    for point in intersectionOrder:
+
+                        if lastX != 0:
+                            sectionCenterX = lastX + \
+                                math.fabs(
+                                    math.fabs(point[0]) - math.fabs(lastX))/2
+                            closestPlane = background
+                            closestZ = 9999999.0
+                            for plane in allWalls:
+                                if plane.inOut:
+                                    planeZ = plane.getZ(sectionCenterX, i)
+                                    # print(planeZ)
+                                    if planeZ < closestZ:
+                                        closestPlane = plane
+                            sections.append(closestPlane.color)
+                        else:
+                            sections.append(colors[0])
+                        point[3].walls[0].changeInOut()
+                        point[3].walls[1].changeInOut()
+                        lastX = point[0]
+                    lastX = 0
+
+                    if len(sections) != 0:
+                        for section in range(len(sections)):
+                            painter.setPen(QPen(sections[section], 1))
+                            painter.drawPolyline(
+                                QPolygon([lastX, i, intersectionOrder[section][0], i]))
+                            lastX = intersectionOrder[section][0]
+                        if lastX < SCREEN_SIZE:
+                            painter.setPen(QPen(background.color, 1))
+                            painter.drawPolyline(
+                                QPolygon([lastX, i, SCREEN_SIZE, i]))
+                    else:
+>>>>>>> mateo
                         painter.setPen(QPen(background.color, 1))
-                        painter.drawPolyline(
-                            QPolygon([lastX, i, SCREEN_SIZE, i]))
-                else:
-                    painter.setPen(QPen(background.color, 1))
-                    painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
+                        painter.drawPolyline(QPolygon([0, i, SCREEN_SIZE, i]))
 
             for w in allWalls:
                 w.inOut = False
