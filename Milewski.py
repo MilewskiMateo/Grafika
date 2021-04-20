@@ -178,19 +178,19 @@ class Widget(QWidget):
         self.update()
 
     def keyPressEvent(self, event):
-        ROTATION_STEP = numpy.radians(0.8)
+        ROTATION_STEP = numpy.radians(3.8)
         if event.key() == Qt.Key_Up:
-            self.transformAllBy(0, -12, 0)
+            self.transformAllBy(0, -42, 0)
         if event.key() == Qt.Key_Down:
-            self.transformAllBy(0, 12, 0)
+            self.transformAllBy(0, 42, 0)
         if event.key() == Qt.Key_Left:
-            self.transformAllBy(12, 0, 0)
+            self.transformAllBy(42, 0, 0)
         if event.key() == Qt.Key_Right:
-            self.transformAllBy(-12, 0, 0)
+            self.transformAllBy(-42, 0, 0)
         if event.key() == Qt.Key_PageUp:
-            self.transformAllBy(0, 0, -12)
+            self.transformAllBy(0, 0, -42)
         if event.key() == Qt.Key_PageDown:
-            self.transformAllBy(0, 0, 12)
+            self.transformAllBy(0, 0, 42)
 
         if event.key() == Qt.Key_S:
             self.rotateAllByX(ROTATION_STEP)
