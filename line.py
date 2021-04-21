@@ -45,7 +45,6 @@ class line:
         x = det(d, xdiff) / div
         y = det(d, ydiff) / div
 
-        # musimy dodać losową liczbę, ponieważ jest to konieczne przy sortowaniu, jeżeli pojawia się wierzchołek
         return [x, y, random.random(), edge]
 
     def get_cords2D(self):

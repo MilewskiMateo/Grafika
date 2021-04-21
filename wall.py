@@ -29,21 +29,14 @@ class wall:
         a, b, c = cp
         d = np.dot(cp, p3)
 
-        # print('{0}x + {1}y + {2}z = {3}'.format(a, b, c, d))
-
         self.a = a
         self.b = b
         self.c = c
         self.d = d
 
-    def getZ(self, x, y, focal):
-        # return (-self.d - self.a*x - self.b*y)/self.c
-        return (-self.d)/((self.a * x/focal) + (self.b*y/focal) + self.c)
-
     def getY(self, x, z, focal):
         x = x - 400
         z = (z * -1) + 400
-        # return (-self.d - self.a*x - self.c*z)/self.b
         return (-self.d)/((self.a * x/focal) + (self.c*z/focal) + self.b)
 
     def changeInOut(self):
